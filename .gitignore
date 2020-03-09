@@ -26,3 +26,4 @@ poloniex_client-*.tar
 .env
 
 .DS_Store
+.elixir_ls
