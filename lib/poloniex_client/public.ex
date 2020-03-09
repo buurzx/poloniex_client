@@ -8,6 +8,8 @@ defmodule PoloniexClient.Public do
 
   # Poloniex Command Definitions
 
+  @default_timestamp_offset -600
+
   @return_ticker "returnTicker"
   @return_24h_volume "return24hVolume"
   @return_order_book "returnOrderBook"
@@ -30,7 +32,7 @@ defmodule PoloniexClient.Public do
 
   @doc """
   Returns the 24-hour volume for all markets as well as totals for primary currencies.
-  Primary currencies include BTC, ETH, USDT, USDC and show the total amount of those 
+  Primary currencies include BTC, ETH, USDT, USDC and show the total amount of those
   tokens that have traded within the last 24 hours.
   """
   def return_24h_volume do
@@ -41,9 +43,9 @@ defmodule PoloniexClient.Public do
   end
 
   @doc """
-  Returns the order book for a given market, 
-  as well as a sequence number used by websockets for synchronization of book updates 
-  and an indicator specifying whether the market is frozen. 
+  Returns the order book for a given market,
+  as well as a sequence number used by websockets for synchronization of book updates
+  and an indicator specifying whether the market is frozen.
 
   You may set currencyPair to "all" to get the order books of all markets.
   """
@@ -56,13 +58,13 @@ defmodule PoloniexClient.Public do
 
   @doc """
   Returns the past 200 trades for a given market, or up to 1,000 trades between a specified time range.
-  Uses UNIX timestamps by the "start" and "end" parameters. 
+  Uses UNIX timestamps by the "start" and "end" parameters.
   """
-  def return_trade_history(currencyPair, start_time, end_time) do
+  def return_trade_history(currencyPair, start_time \\ nil, end_time \\ nil) do
     case Api.public(@return_trade_history,
            currencyPair: currencyPair,
-           start: start_time,
-           end: end_time
+           start: start_time || unix_timestamp(@default_timestamp_offset),
+           end: end_time || unix_timestamp()
          ) do
       {:ok, trade_history} -> {:ok, trade_history}
       errors -> errors
@@ -70,13 +72,14 @@ defmodule PoloniexClient.Public do
   end
 
   @doc """
-  Returns candlestick chart data. 
-  Required parameters: "currencyPair", "start", "end" and "period" 
-  (candlestick period in secs; valid values: 300, 900, 1800, 7200, 14400, and 86400). 
+  Returns candlestick chart data.
+  Required parameters: "currencyPair", "start", "end" and "period"
+  (candlestick period in secs; valid values: 300, 900, 1800, 7200, 14400, and 86400).
 
   "start" and "end" are UNIX timestamps, used to specify the date range for the data returned.
   """
-  def return_chart_data(currency_pair, start_time, end_time, period) do
+  def return_chart_data(currency_pair, start_time, end_time, period \\ 300)
+      when period in [300, 900, 1_800, 7_200, 14_400, 86_400] do
     case Api.public(@return_chart_data,
            currencyPair: currency_pair,
            start: start_time,
@@ -89,7 +92,7 @@ defmodule PoloniexClient.Public do
   end
 
   @doc """
-  Returns information about currencies. 
+  Returns information about currencies.
   """
   def return_currencies do
     case Api.public(@return_currencies) do
@@ -99,7 +102,7 @@ defmodule PoloniexClient.Public do
   end
 
   @doc """
-  Returns the list of loan offers and demands for a given currency, 
+  Returns the list of loan offers and demands for a given currency,
   specified by the "currency" parameter.
   """
   def return_loan_orders(currency) do
@@ -107,5 +110,10 @@ defmodule PoloniexClient.Public do
       {:ok, loan_orders} -> {:ok, loan_orders}
       errors -> errors
     end
+  end
+
+  def unix_timestamp(offset \\ 0) do
+    (:erlang.system_time() / 1.0e9 + offset)
+    |> round
   end
 end
