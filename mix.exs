@@ -4,7 +4,7 @@ defmodule PoloniexClient.MixProject do
   def project do
     [
       app: :poloniex_client,
-      version: "0.0.1",
+      version: "0.0.2",
       elixir: "~> 1.10",
       package: package(),
       start_permanent: Mix.env() == :prod,

@@ -76,14 +76,18 @@ defmodule PoloniexClient.Public do
   Required parameters: "currencyPair", "start", "end" and "period"
   (candlestick period in secs; valid values: 300, 900, 1800, 7200, 14400, and 86400).
 
-  "start" and "end" are UNIX timestamps, used to specify the date range for the data returned.
+  "start" and "end" are DateTime timestamps, used to specify the date range for the data returned.
+  Converts to unix time for Poloniex api
   """
   def return_chart_data(currency_pair, start_time, end_time, period \\ 300)
       when period in [300, 900, 1_800, 7_200, 14_400, 86_400] do
+    start_unix = DateTime.to_unix(start_time)
+    end_unix = DateTime.to_unix(end_time)
+
     case Api.public(@return_chart_data,
            currencyPair: currency_pair,
-           start: start_time,
-           end: end_time,
+           start: start_unix,
+           end: end_unix,
            period: period
          ) do
       {:ok, chart_data} -> {:ok, chart_data}
