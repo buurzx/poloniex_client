@@ -20,6 +20,7 @@ defmodule PoloniexClient.Http do
 
   """
   def get(path, command, params) do
+    # default limit of 6 calls per second
     Process.sleep(@throttle)
 
     headers = []
@@ -44,6 +45,7 @@ defmodule PoloniexClient.Http do
 
   """
   def post(path, command, params) do
+    # default limit of 6 calls per second
     Process.sleep(@throttle)
 
     param_pairs =
