@@ -6,6 +6,7 @@ defmodule PoloniexClient.Http do
   """
 
   @base_url "https://poloniex.com"
+  @throttle 200
 
   # Main Functions
 
@@ -19,6 +20,8 @@ defmodule PoloniexClient.Http do
 
   """
   def get(path, command, params) do
+    Process.sleep(@throttle)
+
     headers = []
     merged_params = Map.merge(%{command: command}, params)
 
@@ -41,6 +44,8 @@ defmodule PoloniexClient.Http do
 
   """
   def post(path, command, params) do
+    Process.sleep(@throttle)
+
     param_pairs =
       Enum.map(params, fn {key, value} ->
         "#{key}=#{value}"
